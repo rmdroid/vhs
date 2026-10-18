@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KI im Alltag – sicher und einfach · VHS-Kurs · Robert Meyer</title>
+<style>
+@font-face{font-family:"Atkinson";src:url("fonts/AtkinsonHyperlegible-Regular.ttf") format("truetype");font-weight:400;font-display:block}
+@font-face{font-family:"Atkinson";src:url("fonts/AtkinsonHyperlegible-Bold.ttf") format("truetype");font-weight:700;font-display:block}
+@font-face{font-family:"Literata";src:url("fonts/Literata.ttf") format("truetype");font-weight:200 900;font-display:block}
+:root{--bg:#F7F2EA;--bg2:#EFE6D8;--ink:#1E2A31;--muted:#47525A;--terra:#9E4422;--teal:#24605B;--line:#D8CCBA;--card:#FFFDF9}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#15191C;overflow:hidden}
+body{font-family:"Atkinson",system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg)}
+.slide{position:absolute;inset:0;display:none;overflow:hidden;background:var(--bg)}
+.slide.active{display:block}
+.slide .notes{display:none}
+h1,h2{font-family:"Literata",Georgia,serif;font-weight:600;letter-spacing:-.01em;line-height:1.12;color:var(--ink)}
+h1{font-size:92px}
+h2{font-size:72px;margin-bottom:56px}
+.kicker{font-size:34px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);margin-bottom:28px}
+p,li{font-size:42px;line-height:1.35}
+.lead{font-size:46px;line-height:1.35;color:var(--ink)}
+.muted{color:var(--muted)}
+ul.pts{list-style:none}
+ul.pts li{position:relative;padding-left:62px;margin-bottom:36px}
+ul.pts li::before{content:"";position:absolute;left:0;top:.42em;width:26px;height:26px;border-radius:50%;background:var(--terra)}
+ul.pts.teal li::before{background:var(--teal)}
+/* split layout */
+.split{display:flex;height:100%}
+.split .img{flex:0 0 880px;height:100%;background-size:cover;background-position:center}
+.split .txt{flex:1;padding:120px 120px 120px 120px;display:flex;flex-direction:column;justify-content:center}
+.split.rev{flex-direction:row-reverse}
+/* plain */
+.pad{padding:100px 130px;height:100%;display:flex;flex-direction:column}
+/* footer elements */
+#counter{position:absolute;right:44px;bottom:30px;font-size:28px;color:var(--muted);font-weight:700;background:rgba(247,242,234,.88);padding:6px 18px;border-radius:30px;z-index:5}
+#progress{position:absolute;left:0;bottom:0;height:8px;background:var(--teal);z-index:5;transition:width .3s}
+/* title */
+.title .txt{padding:120px 60px 120px 130px}
+.title h1{margin-bottom:48px}
+.title .sub{font-size:44px;color:var(--muted);line-height:1.4}
+.title .sub b{color:var(--ink)}
+.rule{width:140px;height:10px;background:var(--terra);border-radius:5px;margin-bottom:56px}
+/* myths */
+.myths{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:3px solid var(--line)}
+.myths div{font-size:40px;line-height:1.3;padding:34px 30px;border-bottom:3px solid var(--line);display:flex;align-items:center}
+.myths .m{color:var(--muted);font-style:normal}
+.myths .m::before{content:"✗";color:var(--terra);font-weight:700;margin-right:22px;font-size:40px}
+.myths .w{font-weight:700;background:var(--card)}
+.myths .w::before{content:"✓";color:var(--teal);font-weight:700;margin-right:22px;font-size:40px}
+.myths .hd{font-size:32px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--teal);background:none!important;padding-top:14px;padding-bottom:14px}
+.myths .hd::before{content:none}
+/* cards */
+.cards{display:grid;gap:44px;flex:1;padding-bottom:40px}
+.cards.c3{grid-template-columns:repeat(3,1fr)}
+.cards.c2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border-radius:28px;padding:56px 54px;justify-content:center;box-shadow:0 10px 30px rgba(60,40,20,.08);border:2px solid #EADFCF;display:flex;flex-direction:column}
+.cards.top .card{justify-content:flex-start;padding-top:80px}
+.card .ic{width:110px;height:110px;margin-bottom:34px}
+.card h3{font-family:"Literata",serif;font-weight:600;font-size:58px;margin-bottom:18px;color:var(--teal)}
+.card .eq{font-size:40px;font-weight:700;margin-bottom:18px}
+.card p{font-size:38px;color:var(--muted)}
+.tools .card{flex-direction:row;align-items:center;gap:40px;padding:44px 50px}
+.tools .card h3{margin-bottom:10px;font-size:60px}
+.tools .card .ic{margin:0;flex:0 0 100px;height:100px}
+/* do / dont */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:56px;flex:1}
+.dd .col{border-radius:28px;padding:48px 52px}
+.dd .no{background:#F6E3DA;border:3px solid #E3BFAF}
+.dd .yes{background:#DCEBE7;border:3px solid #B5D3CC}
+.dd h3{font-size:44px;font-weight:700;margin-bottom:34px;display:flex;align-items:center;gap:20px}
+.dd .no h3{color:#8A3517}.dd .yes h3{color:#1D4F4B}
+.dd li{font-size:40px;margin-bottom:26px;list-style:none;padding-left:0}
+.badge{display:inline-flex;width:64px;height:64px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:40px;font-weight:700}
+.no .badge{background:#9E4422}.yes .badge{background:#24605B}
+/* blocks */
+.blocks{display:flex;flex-direction:column;gap:22px;margin-top:6px}
+.blk{display:flex;align-items:center;gap:34px;background:var(--card);border-radius:22px;padding:28px 40px;border-left:18px solid var(--teal);box-shadow:0 6px 20px rgba(60,40,20,.06)}
+.blk .n{font-family:"Literata",serif;font-size:52px;font-weight:700;color:var(--terra);width:50px}
+.blk .w{font-size:44px;font-weight:700;width:290px}
+.blk .e{font-size:40px;color:var(--muted)}
+/* compare */
+.cmp{display:grid;grid-template-columns:0.75fr 1.25fr;gap:56px;align-items:center;flex:1;padding-bottom:40px}
+.bubble{border-radius:30px;padding:46px 52px;position:relative}
+.bubble .lab{font-size:32px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:24px}
+.bubble.bad{background:#EFE6DC;border:3px dashed #C9B8A6}
+.bubble.bad .lab{color:#8A3517}
+.bubble.good{background:#DCEBE7;border:3px solid #9FC5BD}
+.bubble.good .lab{color:#1D4F4B}
+.bubble .q{font-size:44px;line-height:1.42}
+.bubble.bad .q{font-size:52px;font-family:"Literata",serif}
+.q mark{background:none;color:var(--teal);font-weight:700}
+/* note box */
+.note{margin-top:30px;display:inline-flex;align-items:center;gap:22px;background:#FBEBC8;border:3px solid #D9A85B;border-radius:20px;padding:22px 32px;font-size:34px;font-weight:700;color:#5A3C0E}
+/* wishes tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;flex:1}
+.tile{background:var(--card);border-radius:28px;overflow:hidden;border:2px solid #EADFCF;box-shadow:0 10px 30px rgba(60,40,20,.08);display:flex;flex-direction:column}
+.tile img{width:100%;height:400px;object-fit:cover;display:block}
+.tile div{padding:36px 40px}
+.tile h3{font-size:44px;font-weight:700;margin-bottom:10px}
+.tile p{font-size:34px;color:var(--muted)}
+/* closing */
+.closing{background-size:cover;background-position:center}
+.closing::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(247,242,234,.95) 0%,rgba(247,242,234,.90) 30%,rgba(247,242,234,.55) 38%,rgba(247,242,234,0) 46%)}
+.closing .panel{position:absolute;left:120px;top:50%;transform:translateY(-50%);max-width:640px}
+.closing h1{font-size:104px;margin-bottom:36px}
+/* notes overlay */
+#notesPanel{position:fixed;left:0;right:0;bottom:0;max-height:42vh;overflow:auto;background:rgba(20,24,27,.96);color:#F5EFE6;font-size:clamp(18px,2.1vw,30px);line-height:1.5;padding:22px 34px 28px;display:none;z-index:20;border-top:4px solid #D9A85B}
+#notesPanel.on{display:block}
+#notesPanel .h{font-size:.7em;letter-spacing:.1em;text-transform:uppercase;color:#D9A85B;font-weight:700;margin-bottom:8px}
+#help{position:fixed;left:16px;bottom:12px;color:#9aa3a8;font-size:14px;z-index:10;opacity:.0;transition:opacity .4s}
+body.showhelp #help{opacity:.85}
+</style>
+</head>
+<body class="showhelp">
+<div id="stage">
+
+<!-- 1 -->
+<section class="slide title">
+ <div class="split rev">
+  <div class="img" style="background-image:url(images/01-titel.jpg)"></div>
+  <div class="txt">
+   <div class="kicker">VHS-Präsenzkurs · 4 Abende</div>
+   <h1>KI im Alltag –<br><span style="white-space:nowrap">sicher und einfach</span></h1>
+   <div class="rule"></div>
+   <p class="sub">mit <b>Robert Meyer</b></p>
+  </div>
+ </div>
+ <aside class="notes">Herzlich willkommen zu unserem Kurs „KI im Alltag – sicher und einfach“. Mein Name ist Robert Meyer, und ich begleite Sie an vier Abenden zu je anderthalb Stunden. Sie brauchen keinerlei Vorkenntnisse – wir gehen Schritt für Schritt vor, und jede Frage ist willkommen. Am Ende sollen Sie KI-Werkzeuge sicher und mit gutem Gefühl im Alltag nutzen können.</aside>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+ <div class="split">
+  <div class="img" style="background-image:url(images/02-was-ist-ki.jpg)"></div>
+  <div class="txt">
+   <h2>Was ist KI?</h2>
+   <p class="lead">Ein <b>Werkzeug</b>, das aus sehr vielen Texten <b>Muster</b> gelernt hat.</p>
+   <p class="lead muted" style="margin-top:44px">Kein Gehirn.<br>Kein Bewusstsein.</p>
+  </div>
+ </div>
+ <aside class="notes">KI steht für „Künstliche Intelligenz“. Stellen Sie sich eine riesige Bibliothek vor: Das Programm hat unzählige Texte gelesen und dabei gelernt, welche Wörter typischerweise aufeinander folgen. Daraus formuliert es Antworten, die sehr menschlich klingen. Aber es versteht die Welt nicht so wie Sie, es hat keine Gefühle und kein eigenes Bewusstsein – es ist ein Werkzeug, so wie ein Taschenrechner für Sprache.</aside>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+ <div class="split rev">
+  <div class="img" style="background-image:url(images/03-was-ki-kann.jpg)"></div>
+  <div class="txt">
+   <h2>Was KI kann</h2>
+   <ul class="pts teal">
+    <li>erklären &amp; schreiben</li>
+    <li>übersetzen</li>
+    <li>Fotos lesen &amp; zuhören</li>
+   </ul>
+  </div>
+ </div>
+ <aside class="notes">KI kann Ihnen schwierige Dinge in einfachen Worten erklären und Texte für Sie entwerfen – etwa einen Brief an die Hausverwaltung. Sie übersetzt in viele Sprachen, zum Beispiel eine Speisekarte im Urlaub. Außerdem kann sie Fotos „lesen“, also Text auf einem Bild erkennen, und gesprochene Sprache verstehen. Diese Fähigkeiten probieren wir im Kurs alle gemeinsam aus.</aside>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+ <div class="split">
+  <div class="img" style="background-image:url(images/04-was-ki-nicht-kann.jpg)"></div>
+  <div class="txt">
+   <h2>Was KI nicht kann</h2>
+   <ul class="pts">
+    <li>Sie weiß nicht alles.</li>
+    <li>Sie fühlt nichts.</li>
+    <li>Sie kann sich irren.</li>
+   </ul>
+   <p class="lead" style="margin-top:20px;color:var(--teal)"><b>Darum: immer gegenprüfen.</b></p>
+  </div>
+ </div>
+ <aside class="notes">KI hat Grenzen, und die sollten Sie kennen. Ihr Wissen kann veraltet oder lückenhaft sein, und sie hat kein Mitgefühl, auch wenn sie freundlich formuliert. Besonders wichtig: KI kann Dinge sehr überzeugend behaupten, die schlicht falsch sind – Fachleute nennen das „Halluzinieren“. Prüfen Sie wichtige Angaben deshalb immer nach, zum Beispiel beim Arzt, bei der Bank oder in einer zweiten Quelle.</aside>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+ <div class="pad">
+  <h2 style="margin-bottom:44px">Mythen im Check</h2>
+  <div class="myths">
+   <div class="hd">Mythos</div><div class="hd" style="background:none">Wirklichkeit</div>
+   <div class="m">„KI denkt wie ein Mensch.“</div><div class="w">Sie erkennt Muster – sie denkt nicht.</div>
+   <div class="m">„KI ist immer richtig.“</div><div class="w">Sie kann sich irren. Prüfen Sie nach.</div>
+   <div class="m">„KI ersetzt alle Menschen.“</div><div class="w">Sie hilft. Entscheiden tun Sie.</div>
+   <div class="m">„KI ist nur für Junge.“</div><div class="w">Fragen kann man in jedem Alter.</div>
+   <div class="m">„Was ich eingebe, ist privat.“</div><div class="w">Nicht unbedingt. Vorsicht mit Daten.</div>
+  </div>
+ </div>
+ <aside class="notes">Über KI kursieren viele Behauptungen – schauen wir sie uns kurz an. KI denkt nicht wie ein Mensch, sie berechnet wahrscheinliche Antworten. Sie ist nicht unfehlbar und ersetzt nicht Ihr eigenes Urteil. Und sie ist ganz sicher nicht nur etwas für Junge: Lebenserfahrung hilft sogar, gute Fragen zu stellen. Wichtig zum Schluss: Was Sie eintippen, kann beim Anbieter gespeichert und ausgewertet werden – dazu gleich mehr.</aside>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+ <div class="pad">
+  <h2>Drei Begriffe – einfach erklärt</h2>
+  <div class="cards c3 top">
+   <div class="card">
+    <svg class="ic" viewBox="0 0 100 100"><rect x="18" y="14" width="56" height="72" rx="6" fill="#EFE6D8" stroke="#24605B" stroke-width="5"/><rect x="28" y="22" width="56" height="72" rx="6" fill="#FFFDF9" stroke="#24605B" stroke-width="5"/><line x1="38" y1="40" x2="74" y2="40" stroke="#9E4422" stroke-width="5" stroke-linecap="round"/><line x1="38" y1="54" x2="74" y2="54" stroke="#9E4422" stroke-width="5" stroke-linecap="round"/><line x1="38" y1="68" x2="62" y2="68" stroke="#9E4422" stroke-width="5" stroke-linecap="round"/></svg>
+    <h3>LLM</h3><div class="eq">= großes Sprachmodell</div><p>Das „Herz“ von ChatGPT &amp; Co.</p>
+   </div>
+   <div class="card">
+    <svg class="ic" viewBox="0 0 100 100"><rect x="6" y="34" width="26" height="32" rx="6" fill="#24605B"/><rect x="37" y="34" width="26" height="32" rx="6" fill="#9E4422"/><rect x="68" y="34" width="26" height="32" rx="6" fill="#D9A85B"/></svg>
+    <h3>Token</h3><div class="eq">= Wortschnipsel</div><p>KI liest Text in kleinen Stücken.</p>
+   </div>
+   <div class="card">
+    <svg class="ic" viewBox="0 0 100 100"><rect x="8" y="16" width="84" height="64" rx="10" fill="#FFFDF9" stroke="#24605B" stroke-width="5"/><rect x="18" y="28" width="40" height="12" rx="6" fill="#EFE6D8"/><rect x="42" y="46" width="40" height="12" rx="6" fill="#24605B"/><path d="M30 80 L30 92 L44 80" fill="#24605B"/></svg>
+    <h3>Kontextfenster</h3><div class="eq">= Kurzzeitgedächtnis</div><p>… des laufenden Gesprächs.</p>
+   </div>
+  </div>
+ </div>
+ <aside class="notes">Drei Begriffe werden Ihnen immer wieder begegnen. „LLM“ ist die englische Abkürzung für „Large Language Model“, auf Deutsch großes Sprachmodell – das ist die Technik hinter ChatGPT und ähnlichen Programmen. „Token“ sind die kleinen Wortschnipsel, in die die KI einen Text zerlegt; ein langes Wort besteht oft aus mehreren Token. Das „Kontextfenster“ ist wie ein Kurzzeitgedächtnis: Die KI erinnert sich nur an das, was im aktuellen Gespräch steht – ist es sehr lang, vergisst sie den Anfang.</aside>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+ <div class="pad">
+  <h2>Die Werkzeuge im Kurs</h2>
+  <div class="cards c2 tools">
+   <div class="card"><svg class="ic" viewBox="0 0 100 100"><path d="M14 22 h72 a8 8 0 0 1 8 8 v34 a8 8 0 0 1 -8 8 h-40 l-18 16 v-16 h-14 a8 8 0 0 1 -8 -8 v-34 a8 8 0 0 1 8 -8z" fill="#24605B"/></svg><div><h3>ChatGPT</h3><p>Gespräche, Texte, Erklärungen</p></div></div>
+   <div class="card"><svg class="ic" viewBox="0 0 100 100"><rect x="20" y="10" width="60" height="80" rx="6" fill="#FFFDF9" stroke="#9E4422" stroke-width="6"/><line x1="32" y1="32" x2="68" y2="32" stroke="#9E4422" stroke-width="6" stroke-linecap="round"/><line x1="32" y1="50" x2="68" y2="50" stroke="#9E4422" stroke-width="6" stroke-linecap="round"/><line x1="32" y1="68" x2="56" y2="68" stroke="#9E4422" stroke-width="6" stroke-linecap="round"/></svg><div><h3>Claude</h3><p>sorgfältig bei langen Texten</p></div></div>
+   <div class="card"><svg class="ic" viewBox="0 0 100 100"><circle cx="42" cy="42" r="26" fill="none" stroke="#24605B" stroke-width="9"/><line x1="61" y1="61" x2="86" y2="86" stroke="#24605B" stroke-width="12" stroke-linecap="round"/></svg><div><h3>Perplexity</h3><p>sucht im Internet – mit Quellen</p></div></div>
+   <div class="card"><svg class="ic" viewBox="0 0 100 100"><path d="M10 24 q20 -8 40 4 v62 q-20 -12 -40 -4z" fill="#D9A85B"/><path d="M90 24 q-20 -8 -40 4 v62 q20 -12 40 -4z" fill="#9E4422"/></svg><div><h3>NotebookLM</h3><p>arbeitet mit Ihren eigenen Dokumenten</p></div></div>
+  </div>
+ </div>
+ <aside class="notes">Im Kurs arbeiten wir mit vier Werkzeugen, die Sie kostenlos ausprobieren können. ChatGPT ist der bekannteste Gesprächspartner für Fragen, Texte und Erklärungen. Claude ist ähnlich und eignet sich gut für lange Schreiben und sorgfältige Zusammenfassungen. Perplexity durchsucht das Internet und nennt dabei seine Quellen, die Sie nachprüfen können. NotebookLM von Google beantwortet Fragen nur auf Grundlage der Dokumente, die Sie selbst hochladen.</aside>
+</section>
+
+<!-- 8 -->
+<section class="slide">
+ <div class="split rev">
+  <div class="img" style="background-image:url(images/08-sicherheit.jpg)"></div>
+  <div class="txt">
+   <div class="kicker">Sicherheit · Grundregel</div>
+   <h2>Bitte nie eingeben:</h2>
+   <ul class="pts">
+    <li>Passwörter &amp; PINs</li>
+    <li>Kontonummern</li>
+    <li>Gesundheitsdaten mit Namen</li>
+   </ul>
+  </div>
+ </div>
+ <aside class="notes">Jetzt das Wichtigste des ganzen Kurses: Geben Sie niemals Passwörter, PINs oder Kontonummern in eine KI ein. Auch Gesundheitsdaten zusammen mit Ihrem Namen oder Ihrer Adresse haben dort nichts zu suchen. Wenn Sie zum Beispiel einen Arztbrief verstehen möchten, schwärzen oder entfernen Sie vorher Namen, Geburtsdatum und Versichertennummer. Faustregel: Schreiben Sie nichts hinein, was Sie nicht auch auf eine Postkarte schreiben würden.</aside>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+ <div class="split">
+  <div class="img" style="background-image:url(images/09-betrug.jpg)"></div>
+  <div class="txt" style="padding:90px 90px">
+   <h2 style="margin-bottom:40px">Betrug erkennen</h2>
+   <div class="dd" style="grid-template-columns:1fr;gap:30px;flex:0">
+    <div class="col no"><h3><span class="badge">✗</span>Niemals</h3><ul><li>Codes weitergeben</li><li>Links in SMS antippen</li></ul></div>
+    <div class="col yes"><h3><span class="badge">✓</span>Im Zweifel</h3><ul><li>selbst anrufen – bei bekannter Nummer</li></ul></div>
+   </div>
+  </div>
+ </div>
+ <aside class="notes">Betrüger nutzen SMS, Messenger und E-Mails – und dank KI klingen diese Nachrichten heute oft täuschend echt. Geben Sie niemals Bestätigungscodes, TANs oder PINs weiter, auch nicht an angebliche Bankmitarbeiter oder Familienmitglieder. Tippen Sie Links in unerwarteten Nachrichten nicht an, selbst wenn es um ein Paket oder Ihr Konto geht. Im Zweifel legen Sie auf und rufen selbst an – unter der Nummer, die Sie kennen, etwa von Ihrer Bankkarte oder aus Ihrem Telefonbuch.</aside>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+ <div class="pad">
+  <h2 style="margin-bottom:40px">Gut fragen: 5 Bausteine</h2>
+  <div class="blocks">
+   <div class="blk"><span class="n">1</span><span class="w">Rolle</span><span class="e">Wer soll die KI sein?</span></div>
+   <div class="blk"><span class="n">2</span><span class="w">Aufgabe</span><span class="e">Was genau soll sie tun?</span></div>
+   <div class="blk"><span class="n">3</span><span class="w">Kontext</span><span class="e">Was muss sie über Sie wissen?</span></div>
+   <div class="blk"><span class="n">4</span><span class="w">Format</span><span class="e">Liste, Brief, kurze Punkte?</span></div>
+   <div class="blk"><span class="n">5</span><span class="w">Ton</span><span class="e">Einfach, freundlich, ohne Fachwörter?</span></div>
+  </div>
+ </div>
+ <aside class="notes">Die Frage, die Sie der KI stellen, nennt man „Prompt“. Je besser die Frage, desto besser die Antwort – und mit fünf Bausteinen gelingt das fast immer. Sagen Sie, welche Rolle die KI übernehmen soll, was die Aufgabe ist und welche Hintergründe wichtig sind. Dann legen Sie das Format fest und zum Schluss den Ton oder Einschränkungen, etwa „ohne Fachwörter“. Sie müssen nicht immer alle fünf verwenden, aber jeder Baustein hilft.</aside>
+</section>
+
+<!-- 11 -->
+<section class="slide">
+ <div class="pad">
+  <h2 style="margin-bottom:44px">Vorher – Nachher</h2>
+  <div class="cmp">
+   <div class="bubble bad"><div class="lab">Vorher</div><div class="q">„Erklär mir den Brief.“</div></div>
+   <div class="bubble good"><div class="lab">Nachher</div><div class="q"><mark>Sie sind</mark> ein geduldiger Rentenberater. <mark>Erklären Sie</mark> mir meinen Rentenbescheid (Foto anbei, ohne Namen). <mark>Ich bin</mark> 72 und kein Fachmann. <mark>Bitte</mark> in 5 kurzen Punkten, <mark>einfach</mark> und ohne Fachwörter.</div></div>
+  </div>
+ </div>
+ <aside class="notes">Hier sehen Sie den Unterschied. Links eine typische, sehr knappe Frage – die KI weiß weder, um welchen Brief es geht, noch, wie ausführlich die Antwort sein soll. Rechts sind alle fünf Bausteine enthalten: Rolle, Aufgabe, Kontext, Format und Ton. Achten Sie darauf, dass auf dem Foto keine Namen, Adressen oder Versicherungsnummern zu sehen sind. Probieren Sie beide Varianten gern selbst aus und vergleichen Sie die Antworten.</aside>
+</section>
+
+<!-- 12 -->
+<section class="slide">
+ <div class="split rev">
+  <div class="img" style="background-image:url(images/12-briefe-foto.jpg)"></div>
+  <div class="txt">
+   <h2>Briefe &amp; Formulare<br>per Foto</h2>
+   <ul class="pts teal">
+    <li>verständlich erklären lassen</li>
+    <li>To-do-Liste erstellen</li>
+    <li>Antwort entwerfen</li>
+   </ul>
+  </div>
+ </div>
+ <aside class="notes">Amtliche Briefe und Formulare sind oft schwer verständlich. Sie können ein Foto davon machen und die KI bitten, den Inhalt in einfachen Worten zu erklären. Fragen Sie anschließend: „Was muss ich bis wann tun?“ – dann erhalten Sie eine übersichtliche To-do-Liste. Auf Wunsch entwirft die KI auch eine Antwort, die Sie in Ruhe prüfen und anpassen. Denken Sie daran, persönliche Daten auf dem Foto vorher abzudecken.</aside>
+</section>
+
+<!-- 13 -->
+<section class="slide">
+ <div class="split">
+  <div class="img" style="background-image:url(images/13-beipackzettel.jpg)"></div>
+  <div class="txt">
+   <h2>Beipackzettel verständlich</h2>
+   <p class="lead">Fachsprache in Alltagssprache übersetzen lassen.</p>
+   <div class="note"><svg width="46" height="46" viewBox="0 0 46 46"><circle cx="23" cy="23" r="21" fill="#D9A85B"/><rect x="20" y="10" width="6" height="17" rx="3" fill="#fff"/><circle cx="23" cy="34" r="3.5" fill="#fff"/></svg>Nur zur Information – kein ärztlicher Rat</div>
+  </div>
+ </div>
+ <aside class="notes">Beipackzettel sind lang, klein gedruckt und voller Fachbegriffe. Die KI kann Ihnen erklären, was zum Beispiel „kontraindiziert“ bedeutet oder welche Hinweise zur Einnahme wichtig sind. Bitte beachten Sie aber: Das ersetzt niemals das Gespräch mit Ihrer Ärztin, Ihrem Arzt oder Ihrer Apotheke. Ändern Sie Ihre Medikamente nie allein aufgrund einer KI-Antwort.</aside>
+</section>
+
+<!-- 14 -->
+<section class="slide">
+ <div class="split rev">
+  <div class="img" style="background-image:url(images/14-sprache.jpg)"></div>
+  <div class="txt">
+   <h2>Sprechen statt tippen</h2>
+   <ul class="pts teal">
+    <li>diktieren</li>
+    <li>vorlesen lassen</li>
+    <li>Sprachnachrichten verschriftlichen &amp; kürzen</li>
+   </ul>
+  </div>
+ </div>
+ <aside class="notes">Sie müssen nicht tippen – Sie können mit der KI auch einfach sprechen. Tippen Sie auf das Mikrofon-Symbol und diktieren Sie Ihre Frage oder einen Text. Umgekehrt kann die KI Antworten vorlesen, was bei kleiner Schrift sehr angenehm ist. Und lange Sprachnachrichten aus der Familie lassen sich in Text umwandeln und auf das Wesentliche kürzen.</aside>
+</section>
+
+<!-- 15 -->
+<section class="slide">
+ <div class="split">
+  <div class="img" style="background-image:url(images/15-alltag.jpg)"></div>
+  <div class="txt">
+   <h2>Helfer im Alltag</h2>
+   <ul class="pts">
+    <li>Wege als Schrittliste</li>
+    <li>Erinnerungen setzen</li>
+    <li>Dokumente fotografieren, benennen &amp; wiederfinden</li>
+   </ul>
+  </div>
+ </div>
+ <aside class="notes">Auch im Alltag kann KI Sie entlasten. Lassen Sie sich einen Weg – etwa zum Bürgeramt mit Bus und Bahn – als einfache Schrittliste beschreiben. Sie können sich an Termine und Medikamente erinnern lassen. Und wichtige Dokumente fotografieren Sie, geben ihnen einen sinnvollen Namen wie „2026-10 Rentenbescheid“ und finden sie später schnell wieder.</aside>
+</section>
+
+<!-- 16 -->
+<section class="slide">
+ <div class="pad">
+  <h2 style="margin-bottom:44px">Ihre Wünsche – Extras</h2>
+  <div class="tiles">
+   <div class="tile"><img src="images/16a-lokal.jpg" alt=""><div><h3>Lokale KI</h3><p>läuft auf Ihrem Gerät – Daten bleiben bei Ihnen</p></div></div>
+   <div class="tile"><img src="images/16b-lied.jpg" alt=""><div><h3>Geburtstagslied</h3><p>ein eigenes Lied mit Suno</p></div></div>
+   <div class="tile"><img src="images/16c-reise.jpg" alt=""><div><h3>Reiseplanung</h3><p>Ideen, Tagesplan, Packliste</p></div></div>
+  </div>
+ </div>
+ <aside class="notes">Einige von Ihnen haben besondere Wünsche geäußert – die greifen wir gern auf. Eine lokale KI läuft direkt auf Ihrem eigenen Computer, sodass Ihre Daten nicht ins Internet gehen; das ist für den Datenschutz besonders interessant. Mit dem Programm Suno können Sie ein persönliches Geburtstagslied für Ihre Enkel oder Freunde erstellen. Und bei der Reiseplanung hilft Ihnen KI mit Ideen, einem Tagesplan und einer Packliste – die Buchung erledigen Sie aber selbst bei einem vertrauenswürdigen Anbieter.</aside>
+</section>
+
+<!-- 17 -->
+<section class="slide closing" style="background-image:url(images/17-abschluss.jpg)">
+ <div class="panel">
+  <h1>Jetzt sind<br>Sie dran.</h1>
+  <p class="lead muted">Ihre Fragen sind herzlich willkommen.</p>
+ </div>
+ <aside class="notes">Vielen Dank für Ihre Aufmerksamkeit. Jetzt sind Sie an der Reihe: Probieren Sie in Ruhe eine erste Frage aus – gern mit den fünf Bausteinen. Es gibt keine dummen Fragen, und ich helfe Ihnen gern am Platz. Was möchten Sie wissen?</aside>
+</section>
+
+<div id="counter"></div>
+<div id="progress"></div>
+</div>
+<div id="notesPanel"><div class="h">Sprechernotizen</div><div id="notesText"></div></div>
+<div id="help">← → oder Klick: blättern · N: Notizen · F: Vollbild</div>
+<script>
+(function(){
+ var slides=[].slice.call(document.querySelectorAll('.slide'));
+ var stage=document.getElementById('stage'),counter=document.getElementById('counter'),prog=document.getElementById('progress');
+ var panel=document.getElementById('notesPanel'),nt=document.getElementById('notesText');
+ var cur=0;
+ function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transformOrigin='center center';stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+ function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach(function(s,k){s.classList.toggle('active',k===cur)});
+  counter.textContent=(cur+1)+' / '+slides.length;prog.style.width=((cur+1)/slides.length*100)+'%';
+  var n=slides[cur].querySelector('.notes');nt.textContent=n?n.textContent.trim():'';
+  if(location.hash!=='#'+(cur+1))history.replaceState(null,'','#'+(cur+1));}
+ function fromHash(){var n=parseInt((location.hash||'').slice(1),10);show(isNaN(n)?0:n-1);}
+ addEventListener('resize',fit);addEventListener('hashchange',fromHash);
+ addEventListener('keydown',function(e){var k=e.key;
+  if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].indexOf(k)>=0){e.preventDefault();show(cur+1);}
+  else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].indexOf(k)>=0){e.preventDefault();show(cur-1);}
+  else if(k==='Home'){show(0);}else if(k==='End'){show(slides.length-1);}
+  else if(k==='n'||k==='N'){panel.classList.toggle('on');}
+  else if(k==='f'||k==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
+ });
+ document.addEventListener('click',function(e){if(panel.contains(e.target))return;if(e.clientX<innerWidth*0.3)show(cur-1);else show(cur+1);});
+ var tx=null;document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+ document.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){show(cur+(dx<0?1:-1));e.preventDefault();}tx=null;});
+ setTimeout(function(){document.body.classList.remove('showhelp')},4000);
+ if(/[?&]shot/.test(location.search)){document.body.classList.remove('showhelp');}
+ if(/[?&]notes/.test(location.search)){panel.classList.add('on');}
+ // overflow check
+ if(/[?&]check/.test(location.search)){var out=[];slides.forEach(function(s,k){s.classList.add('active');
+   var sr=s.getBoundingClientRect();
+   s.querySelectorAll('h1,h2,h3,p,li,div,span,img').forEach(function(el){if(el.closest('.notes'))return;var r=el.getBoundingClientRect();if(r.width===0)return;
+     if(r.right>sr.right+1||r.bottom>sr.bottom+1||r.left<sr.left-1||r.top<sr.top-1)out.push('S'+(k+1)+' outside: '+el.tagName+'.'+el.className+' '+el.textContent.slice(0,30));
+     if(el.scrollHeight>el.clientHeight+2&&getComputedStyle(el).overflow!=='visible')out.push('S'+(k+1)+' clipped: '+el.tagName+'.'+el.className);});
+   s.classList.remove('active');});
+  var pre=document.createElement('pre');pre.id='check';pre.textContent=out.length?out.join('\n'):'NO OVERFLOW';document.body.appendChild(pre);}
+ fit();fromHash();
+})();
+</script>
+</body>
+</html>

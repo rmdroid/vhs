@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f1ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11151c" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Das aktuelle Wetter mit verständlichen Tipps für Kleidung, Aktivitäten und Gesundheit.">
+<title>Wetter & Tipps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f1ea;--surface:#ffffff;--surface-2:#efe9df;--text:#16191f;--muted:#4a505c;--line:#d9d1c4;
+  --accent:#1d4ed8;--accent-text:#ffffff;--focus:#f59e0b;
+  --ok-bg:#e1f3e5;--ok-fg:#13522a;--ok-bd:#2f8a4c;
+  --warn-bg:#fff1cc;--warn-fg:#6b4400;--warn-bd:#c98a00;
+  --bad-bg:#fde2e2;--bad-fg:#8a1414;--bad-bd:#c53030;
+  --shadow:0 1px 2px rgba(20,20,30,.06),0 8px 24px rgba(20,20,30,.08);
+  --radius:22px;--scale:1;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151c;--surface:#1a2029;--surface-2:#232b37;--text:#f3f5f8;--muted:#b7bfcc;--line:#323c4a;
+    --accent:#7aa2ff;--accent-text:#0b1020;
+    --ok-bg:#12301d;--ok-fg:#a7f0bd;--ok-bd:#3fae66;
+    --warn-bg:#3a2c08;--warn-fg:#ffe08a;--warn-bd:#d9a21b;
+    --bad-bg:#3d1515;--bad-fg:#ffb4b4;--bad-bd:#e05252;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151c;--surface:#1a2029;--surface-2:#232b37;--text:#f3f5f8;--muted:#b7bfcc;--line:#323c4a;
+  --accent:#7aa2ff;--accent-text:#0b1020;
+  --ok-bg:#12301d;--ok-fg:#a7f0bd;--ok-bd:#3fae66;
+  --warn-bg:#3a2c08;--warn-fg:#ffe08a;--warn-bd:#d9a21b;
+  --bad-bg:#3d1515;--bad-fg:#ffb4b4;--bad-bd:#e05252;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{font-size:calc(20px * var(--scale));-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:hidden;overflow-wrap:break-word;background:var(--bg);color:var(--text);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;min-height:100vh}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 18px}
+h1{font-size:1.5rem;margin:0;letter-spacing:-.01em;display:flex;align-items:center;gap:.4em}
+h1 span[aria-hidden]{font-size:1.2em}
+h2{font-size:1.25rem;margin:0 0 .6rem;display:flex;align-items:center;gap:.5rem}
+.sizes{display:flex;gap:8px}
+button,.btn{font:inherit;font-weight:700;cursor:pointer;border-radius:16px;border:2px solid transparent;min-height:56px;padding:.55rem 1.1rem;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;transition:transform .08s ease,background .2s ease}
+button:active{transform:scale(.97)}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+.btn-primary{background:var(--accent);color:var(--accent-text)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--line)}
+.btn-size{background:var(--surface);color:var(--text);border-color:var(--line);min-width:56px;padding:.4rem .7rem}
+.btn-block{width:100%}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+label.big{display:block;font-weight:700;font-size:1.1rem;margin-bottom:.5rem}
+.search-row{display:flex;gap:10px}
+input[type="search"]{flex:1;min-width:0;font:inherit;font-size:1.1rem;min-height:60px;padding:.5rem 1rem;border-radius:16px;border:2px solid var(--line);background:var(--bg);color:var(--text)}
+input[type="search"]:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+.or{text-align:center;color:var(--muted);margin:14px 0;font-weight:700}
+.results{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px}
+.results button{width:100%;justify-content:flex-start;text-align:left;background:var(--surface-2);color:var(--text);border-color:var(--line);flex-direction:column;align-items:flex-start;gap:0}
+.results small{font-weight:400;color:var(--muted);font-size:.85rem}
+.msg{padding:16px 18px;border-radius:16px;font-weight:700;margin-top:14px;border:2px solid}
+.msg.error{background:var(--bad-bg);color:var(--bad-fg);border-color:var(--bad-bd)}
+.msg.info{background:var(--surface-2);color:var(--text);border-color:var(--line)}
+.hero{border-radius:28px;padding:24px 22px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.hero::after{content:"";position:absolute;inset:auto -60px -80px auto;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero-place{font-size:1.25rem;font-weight:700;margin:0;display:flex;align-items:center;gap:.4rem}
+.hero-time{opacity:.9;font-size:.9rem;margin:2px 0 10px}
+.hero-main{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1}
+.hero-temp{font-size:5rem;font-weight:700;line-height:1;letter-spacing:-.04em}
+.hero-icon{font-size:4.6rem;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+.hero-desc{font-size:1.4rem;font-weight:700;margin:12px 0 0}
+.hero-feel{font-size:1.05rem;opacity:.95;margin:2px 0 0}
+.sky-clear-day{background:linear-gradient(150deg,#0a4aa3,#1c6fd0)}
+.sky-clear-night{background:linear-gradient(150deg,#0d1630,#24356a)}
+.sky-cloudy{background:linear-gradient(150deg,#36424f,#566476)}
+.sky-fog{background:linear-gradient(150deg,#46505c,#66717e)}
+.sky-rain{background:linear-gradient(150deg,#163152,#2b4f78)}
+.sky-snow{background:linear-gradient(150deg,#2c4a6b,#4b6c8f)}
+.sky-storm{background:linear-gradient(150deg,#251d3d,#45375f)}
+.verdict{display:flex;gap:14px;align-items:flex-start;border-radius:var(--radius);padding:18px 20px;margin-bottom:16px;border:3px solid}
+.verdict .v-icon{font-size:2.4rem;line-height:1}
+.verdict strong{display:block;font-size:1.3rem;line-height:1.3}
+.verdict p{margin:.3rem 0 0}
+.v-ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-bd)}
+.v-warn{background:var(--warn-bg);color:var(--warn-fg);border-color:var(--warn-bd)}
+.v-bad{background:var(--bad-bg);color:var(--bad-fg);border-color:var(--bad-bd)}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.fact{min-width:0;overflow-wrap:anywhere;hyphens:auto;background:var(--surface);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow)}
+.fact .f-label{color:var(--muted);font-size:.85rem;font-weight:700;display:flex;gap:.35rem;align-items:center}
+.fact .f-value{font-size:1.45rem;font-weight:700;line-height:1.25;margin-top:2px}
+.fact .f-sub{font-size:.85rem;color:var(--muted)}
+.tips{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.tips li{min-width:0;display:flex;gap:14px;align-items:flex-start;background:var(--surface-2);border-radius:16px;padding:14px 16px}
+.tips .t-icon{font-size:1.7rem;line-height:1.2;flex:none;width:1.9rem;text-align:center}
+.tips li.important{background:var(--warn-bg);color:var(--warn-fg);border:2px solid var(--warn-bd)}
+.tips li.danger{background:var(--bad-bg);color:var(--bad-fg);border:2px solid var(--bad-bd)}
+.best{display:flex;gap:14px;align-items:center;background:var(--surface-2);border-radius:16px;padding:14px 16px;margin-top:12px;font-weight:700}
+.best .t-icon{font-size:1.7rem}
+.hours{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.hour{background:var(--surface-2);border-radius:16px;padding:12px 6px;text-align:center}
+.hour .h-time{font-weight:700}
+.hour .h-icon{font-size:2rem;line-height:1.3}
+.hour .h-temp{font-size:1.3rem;font-weight:700}
+.hour .h-rain{font-size:.85rem;color:var(--muted)}
+.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:8px 0 16px}
+.actions .btn-block{grid-column:1/-1}
+footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:24px}
+footer a{color:inherit}
+.loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 10px;font-weight:700;font-size:1.15rem}
+.spinner{width:56px;height:56px;border-radius:50%;border:6px solid var(--line);border-top-color:var(--accent);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade-in{animation:fade .35s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+@media (max-width:380px){
+  .hero-temp{font-size:4.2rem}.hero-icon{font-size:3.8rem}
+  .facts{grid-template-columns:1fr}
+  .search-row{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span aria-hidden="true">🌤️</span>Wetter &amp; Tipps</h1>
+    <div class="sizes" role="group" aria-label="Schriftgröße">
+      <button class="btn-size" id="smaller" aria-label="Schrift kleiner">A−</button>
+      <button class="btn-size" id="bigger" aria-label="Schrift größer">A+</button>
+    </div>
+  </header>
+
+  <section id="searchView" class="card" aria-labelledby="searchTitle">
+    <h2 id="searchTitle"><span aria-hidden="true">📍</span>Für welchen Ort?</h2>
+    <form id="searchForm" autocomplete="off">
+      <label class="big" for="q">Ort oder Postleitzahl</label>
+      <div class="search-row">
+        <input type="search" id="q" placeholder="z. B. München" enterkeyhint="search" required>
+        <button type="submit" class="btn-primary">Suchen</button>
+      </div>
+    </form>
+    <div class="or">oder</div>
+    <button id="locate" class="btn-secondary btn-block"><span aria-hidden="true">🧭</span>Meinen Standort verwenden</button>
+    <ul id="results" class="results" aria-label="Suchergebnisse"></ul>
+    <div id="searchMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <div id="loading" class="loading" hidden role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <span>Wetter wird geladen …</span>
+  </div>
+
+  <main id="weatherView" hidden aria-live="polite"></main>
+
+  <footer>
+    Wetterdaten: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)
+  </footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s)
+const store = {
+  get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+}
+
+const WMO = {
+  0:['Sonnig','☀️','🌙','clear'],1:['Überwiegend sonnig','🌤️','🌙','clear'],2:['Teilweise bewölkt','⛅','☁️','cloudy'],3:['Bedeckt','☁️','☁️','cloudy'],
+  45:['Nebel','🌫️','🌫️','fog'],48:['Nebel mit Reif','🌫️','🌫️','fog'],
+  51:['Leichter Nieselregen','🌦️','🌧️','drizzle'],53:['Nieselregen','🌦️','🌧️','drizzle'],55:['Starker Nieselregen','🌧️','🌧️','drizzle'],
+  56:['Gefrierender Nieselregen','🧊','🧊','freezing'],57:['Gefrierender Nieselregen','🧊','🧊','freezing'],
+  61:['Leichter Regen','🌦️','🌧️','rain'],63:['Regen','🌧️','🌧️','rain'],65:['Starker Regen','🌧️','🌧️','heavyrain'],
+  66:['Gefrierender Regen','🧊','🧊','freezing'],67:['Starker gefrierender Regen','🧊','🧊','freezing'],
+  71:['Leichter Schneefall','🌨️','🌨️','snow'],73:['Schneefall','🌨️','🌨️','snow'],75:['Starker Schneefall','❄️','❄️','heavysnow'],77:['Schneegriesel','🌨️','🌨️','snow'],
+  80:['Leichte Regenschauer','🌦️','🌧️','rain'],81:['Regenschauer','🌧️','🌧️','rain'],82:['Heftige Regenschauer','🌧️','🌧️','heavyrain'],
+  85:['Leichte Schneeschauer','🌨️','🌨️','snow'],86:['Starke Schneeschauer','❄️','❄️','heavysnow'],
+  95:['Gewitter','⛈️','⛈️','storm'],96:['Gewitter mit Hagel','⛈️','⛈️','storm'],99:['Schweres Gewitter mit Hagel','⛈️','⛈️','storm']
+}
+const wx = (code,isDay=1) => {
+  const w = WMO[code] || ['Unbekannt','🌡️','🌡️','cloudy']
+  return {text:w[0],icon:isDay?w[1]:w[2],group:w[3]}
+}
+const WET = ['drizzle','rain','heavyrain','snow','heavysnow','freezing','storm']
+
+const windWord = v => v<12?'schwach':v<29?'mäßig':v<50?'kräftig':v<75?'stürmisch':'Sturm'
+const uvWord = v => v<3?'niedrig':v<6?'mäßig':v<8?'hoch':v<11?'sehr hoch':'extrem'
+const r = v => Math.round(v)
+const hhmm = iso => iso.slice(11,16)
+
+let scale = store.get('scale') || 1
+const applyScale = () => document.documentElement.style.setProperty('--scale',scale)
+applyScale()
+$('#bigger').onclick = () => {scale = Math.min(1.45,+(scale+.15).toFixed(2));applyScale();store.set('scale',scale)}
+$('#smaller').onclick = () => {scale = Math.max(.85,+(scale-.15).toFixed(2));applyScale();store.set('scale',scale)}
+
+const show = view => {
+  $('#searchView').hidden = view!=='search'
+  $('#loading').hidden = view!=='loading'
+  $('#weatherView').hidden = view!=='weather'
+}
+const searchMsg = (text,type='info') => {
+  $('#searchMsg').innerHTML = ''
+  if(!text) return
+  const d = document.createElement('div')
+  d.className = 'msg '+type
+  d.textContent = text
+  $('#searchMsg').append(d)
+}
+
+async function getJSON(url){
+  const res = await fetch(url)
+  if(!res.ok) throw new Error('HTTP '+res.status)
+  return res.json()
+}
+
+async function searchPlaces(name){
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=6&language=de&format=json`
+  const data = await getJSON(url)
+  return data.results || []
+}
+
+$('#searchForm').addEventListener('submit', async e => {
+  e.preventDefault()
+  const q = $('#q').value.trim()
+  if(!q) return
+  $('#results').innerHTML = ''
+  searchMsg('Suche läuft …')
+  try{
+    const list = await searchPlaces(q)
+    if(!list.length){searchMsg(`Leider wurde „${q}“ nicht gefunden. Bitte prüfen Sie die Schreibweise.`,'error');return}
+    if(list.length===1){choosePlace(list[0]);return}
+    searchMsg('Bitte wählen Sie Ihren Ort aus:')
+    list.forEach(p => {
+      const li = document.createElement('li')
+      const b = document.createElement('button')
+      const strong = document.createElement('span')
+      strong.textContent = p.name
+      const small = document.createElement('small')
+      small.textContent = [p.postcodes?.[0],p.admin1,p.country].filter(Boolean).join(' · ')
+      b.append(strong,small)
+      b.onclick = () => choosePlace(p)
+      li.append(b)
+      $('#results').append(li)
+    })
+  }catch{
+    searchMsg('Die Suche hat nicht geklappt. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.','error')
+  }
+})
+
+function choosePlace(p){
+  const place = {name:p.name,region:p.admin1||p.country||'',lat:p.latitude,lon:p.longitude}
+  store.set('place',place)
+  loadWeather(place)
+}
+
+$('#locate').addEventListener('click', () => {
+  if(!navigator.geolocation){searchMsg('Ihr Gerät kann den Standort nicht ermitteln. Bitte geben Sie den Ort ein.','error');return}
+  searchMsg('Standort wird ermittelt … Bitte erlauben Sie den Zugriff, falls Sie gefragt werden.')
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const {latitude:lat,longitude:lon} = pos.coords
+    let name = 'Mein Standort', region = ''
+    try{
+      const g = await getJSON(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=de`)
+      name = g.city || g.locality || name
+      region = g.principalSubdivision || ''
+    }catch{}
+    const place = {name,region,lat,lon}
+    store.set('place',place)
+    loadWeather(place)
+  }, () => {
+    searchMsg('Der Standort konnte nicht ermittelt werden. Bitte geben Sie Ihren Ort oben ein.','error')
+  }, {enableHighAccuracy:false,timeout:12000,maximumAge:600000})
+})
+
+async function loadWeather(place){
+  show('loading')
+  const params = new URLSearchParams({
+    latitude:place.lat,longitude:place.lon,timezone:'auto',forecast_days:'2',
+    current:'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,is_day',
+    hourly:'temperature_2m,apparent_temperature,precipitation_probability,weather_code,is_day,uv_index',
+    daily:'temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunrise,sunset'
+  })
+  try{
+    const data = await getJSON('https://api.open-meteo.com/v1/forecast?'+params)
+    render(place,data)
+    show('weather')
+    window.scrollTo({top:0,behavior:'smooth'})
+  }catch{
+    show('search')
+    searchMsg('Das Wetter konnte gerade nicht geladen werden. Bitte versuchen Sie es in einem Moment noch einmal.','error')
+  }
+}
+
+function analyse(d){
+  const c = d.current, day = d.daily, h = d.hourly
+  const nowHour = c.time.slice(0,13)
+  const i0 = Math.max(0,h.time.findIndex(t => t.slice(0,13)>=nowHour))
+  const next = h.time.slice(i0,i0+24).map((t,k) => ({
+    time:t,temp:h.temperature_2m[i0+k],feel:h.apparent_temperature[i0+k],rain:h.precipitation_probability[i0+k]??0,
+    code:h.weather_code[i0+k],isDay:h.is_day[i0+k],uv:h.uv_index[i0+k]??0
+  }))
+  const w = wx(c.weather_code,c.is_day)
+  const t = c.temperature_2m, feel = c.apparent_temperature, gust = c.wind_gusts_10m, wind = c.wind_speed_10m
+  const rain3 = Math.max(0,...next.slice(0,3).map(x => x.rain))
+  const uvMax = day.uv_index_max[0] ?? 0
+  const wet = WET.includes(w.group) || c.precipitation>0
+  const icy = w.group==='freezing' || (t<=1 && wet)
+  const g = w.group
+
+  let level = 'ok'
+  const bad = g==='storm' || g==='freezing' || g==='heavysnow' || g==='heavyrain' || gust>=60 || feel>=32 || feel<=-10
+  const warn = icy || ['rain','snow','drizzle','fog'].includes(g) || gust>=40 || feel>=27 || feel<=0 || uvMax>=6 || rain3>=50
+  if(bad) level='bad'; else if(warn) level='warn'
+
+  const verdict = {
+    ok:{icon:'😊',title:'Gutes Wetter für draußen',text:'Einem Spaziergang steht nichts im Weg.'},
+    warn:{icon:'⚠️',title:'Draußen ja – aber mit Vorsicht',text:'Beachten Sie bitte die Hinweise unten.'},
+    bad:{icon:'🏠',title:'Heute besser drinnen bleiben',text:'Gehen Sie nur hinaus, wenn es wirklich nötig ist.'}
+  }[level]
+  if(level==='ok' && !c.is_day) verdict.text = 'Es ist dunkel – für einen kurzen Gang gut geeignet, mit heller Kleidung.'
+
+  const clothes = []
+  if(feel<=-5) clothes.push(['🧥','Dicker Wintermantel, Mütze, Schal und warme Handschuhe.'])
+  else if(feel<=5) clothes.push(['🧥','Warme Winterjacke, Mütze und Handschuhe.'])
+  else if(feel<=12) clothes.push(['🧶','Übergangsjacke oder dicker Pullover, dazu ein Schal.'])
+  else if(feel<=18) clothes.push(['🧥','Leichte Jacke oder Strickjacke. Am besten mehrere dünne Schichten (Zwiebelprinzip).'])
+  else if(feel<=24) clothes.push(['👕','Leichte Kleidung. Eine dünne Jacke für später einpacken.'])
+  else clothes.push(['👒','Luftige, helle Kleidung und ein Sonnenhut.'])
+  if(feel<=5 || icy || g.includes('snow')) clothes.push(['🥾','Feste Schuhe mit rutschfester Sohle.'])
+  else if(feel>24) clothes.push(['👡','Bequeme, luftige Schuhe – aber mit gutem Halt.'])
+  else clothes.push(['👟','Bequeme, feste Schuhe.'])
+  if(['drizzle','rain','heavyrain','storm'].includes(g) || rain3>=40) clothes.push(['☂️',`Regenschirm oder Regenjacke mit Kapuze mitnehmen (Regenrisiko ${rain3} %).`])
+  if(uvMax>=5 && c.is_day) clothes.push(['🕶️','Sonnenbrille und Kopfbedeckung nicht vergessen.'])
+  if(!c.is_day || g==='fog') clothes.push(['🦺','Helle Kleidung oder Reflektoren – damit Autofahrer Sie gut sehen.'])
+
+  const health = []
+  if(g==='storm') health.push(['⛈️','Gewitter: Bleiben Sie im Haus. Draußen nicht unter Bäumen Schutz suchen.','danger'])
+  if(icy) health.push(['🧊','Vorsicht Glätte! Kleine Schritte machen, Handläufe nutzen. Ein Gehstock mit Eiskralle gibt Halt.','danger'])
+  else if(t<=3) health.push(['❄️','Um den Gefrierpunkt kann es auf Brücken und im Schatten glatt sein.','important'])
+  if(gust>=60) health.push(['💨',`Sturmböen bis ${r(gust)} km/h – Sturzgefahr und herabfallende Äste. Bitte drinnen bleiben.`,'danger'])
+  else if(gust>=40) health.push(['💨',`Kräftige Böen bis ${r(gust)} km/h – Rollator und Schirm gut festhalten.`,'important'])
+  if(feel>=32) health.push(['🥵','Große Hitze belastet Herz und Kreislauf. Bleiben Sie in kühlen Räumen und trinken Sie regelmäßig.','danger'])
+  else if(feel>=27) health.push(['💧','Viel trinken (etwa 1,5 bis 2 Liter am Tag), auch ohne Durstgefühl. Mittagshitze von 11 bis 17 Uhr meiden.','important'])
+  else if(feel>=22) health.push(['💧','Denken Sie ans Trinken – nehmen Sie eine Flasche Wasser mit.'])
+  if(feel<=-10) health.push(['🥶','Strenger Frost belastet Herz und Atemwege. Nur kurz hinausgehen, Mund und Nase mit einem Schal schützen.','danger'])
+  else if(feel<=0) health.push(['🫖','Kälte strengt den Kreislauf an. Nicht zu lange draußen bleiben, danach mit einem warmen Getränk aufwärmen.'])
+  if(uvMax>=6) health.push(['🧴',`Starke Sonne (UV ${r(uvMax)}): Sonnencreme mit hohem Lichtschutzfaktor, mittags Schatten suchen.`,'important'])
+  else if(uvMax>=3 && c.is_day) health.push(['🧴','Sonnencreme für Gesicht und Hände ist heute sinnvoll.'])
+  if(g==='fog') health.push(['🌫️','Nebel: Beim Überqueren der Straße besonders aufmerksam sein.','important'])
+  if(!health.length) health.push(['✅','Keine besonderen Risiken. Genießen Sie den Tag!'])
+
+  const acts = []
+  if(level==='bad'){
+    acts.push(['🧘','Bewegung zu Hause: Gymnastik im Sitzen oder ein paar Runden durch die Wohnung.'])
+    acts.push(['📞','Zeit für ein Telefonat mit Familie oder Freunden.'])
+    acts.push(['📖','Lesen, Rätseln oder Musik hören.'])
+  }else if(['rain','drizzle','snow'].includes(g) || rain3>=60){
+    acts.push(['🏛️','Gut für Ausflüge unter Dach: Museum, Bücherei, Café oder Einkaufszentrum.'])
+    acts.push(['🏊','Wassergymnastik oder Schwimmen im Hallenbad.'])
+    acts.push(['🧘','Oder gemütlich: Gymnastik und Dehnübungen zu Hause.'])
+  }else if(feel>=27){
+    acts.push(['🌅','Spaziergang am frühen Morgen oder am Abend, wenn es kühler ist.'])
+    acts.push(['🌳','Schattige Wege wählen, z. B. im Park oder Wald.'])
+    acts.push(['🏊','Abkühlung im Freibad oder See – nicht direkt aus der Sonne ins kalte Wasser.'])
+  }else if(feel<=3){
+    acts.push(['🚶','Ein kurzer Spaziergang am Tag hält fit – lieber zur Mittagszeit, wenn es am wärmsten ist.'])
+    acts.push(['☕','Verbinden Sie den Weg mit einem Besuch im Café oder bei Bekannten.'])
+    acts.push(['🧘','Für mehr Bewegung: Gymnastik in der warmen Wohnung.'])
+  }else{
+    acts.push(['🚶','Ideal für einen Spaziergang – etwa 30 Minuten in gemütlichem Tempo.'])
+    acts.push(['🌷','Gartenarbeit, eine Bank im Park oder ein Besuch auf dem Wochenmarkt.'])
+    acts.push(['🚲','Wer mag: eine kleine Radtour oder Nordic Walking.'])
+  }
+
+  const today = c.time.slice(0,10)
+  const cands = next.filter(x => x.isDay)
+  let best = null
+  if(cands.length){
+    best = cands.map(x => {
+      const gg = wx(x.code).group
+      let s = x.rain + Math.abs(x.feel-19)*2.5
+      if(['rain','drizzle','snow'].includes(gg)) s += 40
+      if(['heavyrain','heavysnow','freezing','storm'].includes(gg)) s += 120
+      return {...x,score:s}
+    }).sort((a,b) => a.score-b.score)[0]
+    best.day = best.time.slice(0,10)===today?'heute':'morgen'
+  }
+
+  return {c,day,next,w,level,verdict,clothes,health,acts,best,rain3,uvMax,wind,gust}
+}
+
+function el(tag,cls,html){
+  const e = document.createElement(tag)
+  if(cls) e.className = cls
+  if(html!=null) e.innerHTML = html
+  return e
+}
+const esc = s => String(s).replace(/[&<>"']/g,m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))
+
+function tipList(items){
+  const ul = el('ul','tips')
+  items.forEach(([icon,text,cls]) => {
+    const li = el('li',cls||'')
+    li.append(el('span','t-icon',icon),el('span','',esc(text)))
+    li.firstChild.setAttribute('aria-hidden','true')
+    ul.append(li)
+  })
+  return ul
+}
+
+let speechText = ''
+
+function render(place,d){
+  const a = analyse(d)
+  const {c,w} = a
+  const v = $('#weatherView')
+  v.innerHTML = ''
+  v.className = 'fade-in'
+
+  const skyMap = {clear:c.is_day?'sky-clear-day':'sky-clear-night',cloudy:c.is_day?'sky-cloudy':'sky-clear-night',fog:'sky-fog',drizzle:'sky-rain',rain:'sky-rain',heavyrain:'sky-rain',freezing:'sky-snow',snow:'sky-snow',heavysnow:'sky-snow',storm:'sky-storm'}
+  const hero = el('section','hero '+(skyMap[w.group]||'sky-cloudy'))
+  hero.setAttribute('aria-label','Aktuelles Wetter')
+  hero.innerHTML = `
+    <p class="hero-place"><span aria-hidden="true">📍</span>${esc(place.name)}</p>
+    <p class="hero-time">${place.region?esc(place.region)+' · ':''}Stand: ${hhmm(c.time)} Uhr</p>
+    <div class="hero-main">
+      <div class="hero-temp">${r(c.temperature_2m)}°</div>
+      <div class="hero-icon" aria-hidden="true">${w.icon}</div>
+    </div>
+    <p class="hero-desc">${w.text}</p>
+    <p class="hero-feel">Gefühlt wie ${r(c.apparent_temperature)}° · Heute ${r(a.day.temperature_2m_min[0])}° bis ${r(a.day.temperature_2m_max[0])}°</p>`
+  v.append(hero)
+
+  const vd = el('section','verdict v-'+a.level)
+  vd.setAttribute('role','status')
+  vd.innerHTML = `<span class="v-icon" aria-hidden="true">${a.verdict.icon}</span><div><strong>${a.verdict.title}</strong><p>${a.verdict.text}</p></div>`
+  v.append(vd)
+
+  const facts = el('section','facts')
+  facts.setAttribute('aria-label','Wetterwerte')
+  const fact = (icon,label,value,sub) => `<div class="fact"><div class="f-label"><span aria-hidden="true">${icon}</span>${label}</div><div class="f-value">${value}</div><div class="f-sub">${sub}</div></div>`
+  facts.innerHTML =
+    fact('☔','Regenrisiko',`${a.rain3} %`,'nächste 3 Stunden') +
+    fact('💨','Wind',`${r(a.wind)} km/h`,`${windWord(a.wind)}${a.gust>=30?`, Böen ${r(a.gust)}`:''}`) +
+    fact('☀️','UV-Index',`${r(a.uvMax)}`,`${uvWord(a.uvMax)} (Tageshöchstwert)`) +
+    fact('💧','Luftfeuchte',`${c.relative_humidity_2m} %`,c.relative_humidity_2m>=85?'sehr feucht':c.relative_humidity_2m<=35?'trocken':'angenehm') +
+    fact('🌅','Sonnenaufgang',`${hhmm(a.day.sunrise[0])}`,'Uhr') +
+    fact('🌇','Sonnenuntergang',`${hhmm(a.day.sunset[0])}`,'Uhr')
+  v.append(facts)
+
+  const cl = el('section','card'); cl.append(el('h2','','<span aria-hidden="true">👕</span>Was ziehe ich an?'),tipList(a.clothes)); v.append(cl)
+  const he = el('section','card'); he.append(el('h2','','<span aria-hidden="true">❤️</span>Gesundheit &amp; Sicherheit'),tipList(a.health)); v.append(he)
+
+  const ac = el('section','card')
+  ac.append(el('h2','','<span aria-hidden="true">🌳</span>Was kann ich unternehmen?'),tipList(a.acts))
+  if(a.best){
+    const bw = wx(a.best.code,1)
+    ac.append(el('div','best',`<span class="t-icon" aria-hidden="true">⏰</span><span>Beste Zeit für draußen: ${a.best.day} gegen ${+a.best.time.slice(11,13)} Uhr – ${r(a.best.temp)}°, ${bw.text.toLowerCase()}, Regenrisiko ${a.best.rain} %.</span>`))
+  }
+  v.append(ac)
+
+  const hs = el('section','card')
+  hs.append(el('h2','','<span aria-hidden="true">🕒</span>Die nächsten Stunden'))
+  const grid = el('div','hours')
+  a.next.slice(1,7).forEach(x => {
+    const hw = wx(x.code,x.isDay)
+    const item = el('div','hour',`<div class="h-time">${+x.time.slice(11,13)} Uhr</div><div class="h-icon" aria-hidden="true">${hw.icon}</div><div class="h-temp">${r(x.temp)}°</div><div class="h-rain">☔ ${x.rain} %</div>`)
+    item.setAttribute('aria-label',`${+x.time.slice(11,13)} Uhr: ${r(x.temp)} Grad, ${hw.text}, Regenrisiko ${x.rain} Prozent`)
+    grid.append(item)
+  })
+  hs.append(grid)
+  v.append(hs)
+
+  const actions = el('div','actions')
+  const speak = el('button','btn-primary btn-block','<span aria-hidden="true">🔊</span>Vorlesen')
+  speak.id = 'speakBtn'
+  const refresh = el('button','btn-secondary','<span aria-hidden="true">↻</span>Neu laden')
+  const change = el('button','btn-secondary','<span aria-hidden="true">📍</span>Ort ändern')
+  refresh.onclick = () => loadWeather(place)
+  change.onclick = () => {stopSpeech();show('search');$('#results').innerHTML='';searchMsg('');$('#q').focus()}
+  speak.onclick = toggleSpeech
+  if(!('speechSynthesis' in window)) speak.hidden = true
+  actions.append(speak,refresh,change)
+  v.append(actions)
+
+  speechText = [
+    `Das Wetter in ${place.name}.`,
+    `Es sind ${r(c.temperature_2m)} Grad, gefühlt ${r(c.apparent_temperature)} Grad. ${w.text}.`,
+    `${a.verdict.title}. ${a.verdict.text}`,
+    'Kleidung: '+a.clothes.map(x => x[1]).join(' '),
+    'Gesundheit: '+a.health.map(x => x[1]).join(' '),
+    'Vorschläge: '+a.acts.map(x => x[1]).join(' ')
+  ].join(' ').replace(/km\/h/g,'Kilometer pro Stunde').replace(/%/g,' Prozent').replace(/z\. B\./g,'zum Beispiel')
+}
+
+function stopSpeech(){
+  if('speechSynthesis' in window) speechSynthesis.cancel()
+  const b = $('#speakBtn'); if(b) b.innerHTML = '<span aria-hidden="true">🔊</span>Vorlesen'
+}
+function toggleSpeech(){
+  if(speechSynthesis.speaking){stopSpeech();return}
+  const u = new SpeechSynthesisUtterance(speechText)
+  u.lang = 'de-DE'; u.rate = .9
+  const de = speechSynthesis.getVoices().find(x => x.lang?.startsWith('de'))
+  if(de) u.voice = de
+  u.onend = stopSpeech
+  speechSynthesis.speak(u)
+  $('#speakBtn').innerHTML = '<span aria-hidden="true">⏹️</span>Vorlesen stoppen'
+}
+
+async function init(){
+  const p = new URLSearchParams(location.search)
+  if(p.get('ort')){
+    show('loading')
+    try{
+      const list = await searchPlaces(p.get('ort'))
+      if(list.length){choosePlace(list[0]);return}
+    }catch{}
+    show('search')
+    searchMsg('Der Ort aus dem Link wurde nicht gefunden. Bitte geben Sie ihn ein.','error')
+    return
+  }
+  const saved = store.get('place')
+  if(saved && typeof saved.lat==='number'){loadWeather(saved);return}
+  show('search')
+}
+init()
+</script>
+</body>
+</html>
